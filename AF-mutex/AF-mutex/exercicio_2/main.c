@@ -11,6 +11,9 @@ void imprimir_matriz(FILE *arquivo, int **matriz);
 void imprimir_matrizes();
 void liberar_matrizes();
 
+// Função auxiliar que verifica se a multiplicação foi feita corretamente. Criada em verificador.c
+int verificar_multiplicacao();
+
 // Função executada pelas worker threads. Definida em thread.c
 // É nessa função que está ocorrendo um data race
 void *matrix_mult_worker(void *arg);
@@ -51,6 +54,12 @@ int main(int argc, char* argv[]) {
 
     //Crias as threads
     pthread_t threads[num_threads];
+
+    // Inicializa matrix_mutex, caso ele não tenha sido inicializado com
+    // PTHREAD_MUTEX_INITIALIZER
+    pthread_mutex_init(&matrix_mutex, NULL);
+
+
     for (int i = 0; i < num_threads; i++) {
         pthread_create(&threads[i], NULL, matrix_mult_worker, NULL);
     }
@@ -60,10 +69,18 @@ int main(int argc, char* argv[]) {
         pthread_join(threads[i], NULL);
     }
 
+    //Verifica se a multiplicação foi feita corretamente (Teste pessoal. Caso queira usar para verificar, retirar comentário da linha abaixo)
+    //verificar_multiplicacao();
+
     //Imprime as matrizes em um arquivo resultado.txt
     imprimir_matrizes();
 
     //Libera a memória das matrizes
     liberar_matrizes();
+
+    // Destroy matrix_mutex. Qualquer uso futuro do matrix_mutex será um erro.
+    pthread_mutex_destroy(&matrix_mutex);
+
+
     return 0;
 }

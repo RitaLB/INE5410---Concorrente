@@ -25,15 +25,35 @@
 
 
 int contador_global = 0;
+pthread_mutex_t mtx; // = PTHREAD_MUTEX_INITIALIZER;
+
 
 
 void *incrementor(void *arg) {
     int n_loops = *(int *)arg;
     for (int i = 0; i < n_loops; i++) {
+        pthread_mutex_lock(&mtx);
         contador_global += 1;
+        pthread_mutex_unlock(&mtx);
     }
     pthread_exit(NULL); // ou return NULL;
 }
+
+// Teste com versão ainda mais roblemática para visualizar a diferença entre ter mutex e não ter
+/*
+void *incrementor(void *arg) {
+    int n_loops = *(int *)arg;
+    for (int i = 0; i < n_loops; i++) {
+        pthread_mutex_lock(&mtx);
+        int meu_contador = contador_global;
+        meu_contador++;
+        sleep(1); // Simula trabalho
+        contador_global = meu_contador;
+        pthread_mutex_unlock(&mtx);
+    }
+    pthread_exit(NULL); // ou return NULL;
+}
+*/
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
@@ -45,6 +65,10 @@ int main(int argc, char* argv[]) {
     int n_loops = atoi(argv[2]);
     pthread_t threads[n_threads];
 
+    // Inicializa mtx, caso ele não tenha sido inicializado com
+    // PTHREAD_MUTEX_INITIALIZER
+    pthread_mutex_init(&mtx, NULL);
+
     for (int i = 0; i < n_threads; i++)
         pthread_create(&threads[i], NULL, incrementor, (void*)&n_loops);
 
@@ -53,5 +77,8 @@ int main(int argc, char* argv[]) {
 
     printf("Contador: %d\n", contador_global);
     printf("Esperado: %d\n", n_threads * n_loops);
+
+    // Destroy mtx. Qualquer uso futuro do mtx será um erro.
+    pthread_mutex_destroy(&mtx);
     return 0;
 }
