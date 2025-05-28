@@ -1,0 +1,16 @@
+Questão 3 -> Tem comando que eu consiga ver essas threads?(tipoo co,ando de ver os processos) ?
+Q3 -> assumindo que todas as threads são iniciadas sequencialmente uma depois da outra, na ordem 
+t1
+t2
+t3
+t4
+t5
+
+q5) Não entendi lógica
+q6) isso não força que toda a leitura seja feita de uma vez? tipo, não permite concorrência com escrita
+
+q7) 
+1 v -> não dá pra chegar em p1(0 e p2() com true nos dois ifs juntos -> chegar no if em uma exclui a possibilidade de true da outra
+2 v -> se as duas threads foresm executadas em paralelo ao msm tepo, ambas receberal false no if
+3 f -> vide exp. 2 v
+4 v ->  vide exp 1 v
